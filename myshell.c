@@ -32,5 +32,29 @@ init_shell() {
 		signal(SIGTTIN, SIG_IGN);
 		signal(SIGTTOU, SIG_IGN);
 		signal(SIGCHLD, SIG_IGN);
+
+		/* int setpgid(pid, pgid);
+		 * put ourselves in our own process group*/
+		SHELL_PGID = getpid();
+		if(setpgid (SHELL_PGID, SHELL_PGID) < 0) {
+			perror("Couldn't put the shell in its own process group");
+			exit(1);
+		}
+
+		/* Grab control of the terminal */
+		tcsetpgrp(SHELL_TERMINAL, SHELL_PGID);
+		/* Save default terminal attributes for shell */
+		tcgetattr(SHELL_TERMINAL, &SHELL_TMODES);
+
+		currentDirectory = (char *)malloc(sizeof(char)*1024);
+	}
+	else {
+		printf("Couldn't make shell interactive, sorry...\n");
+		exit(1);
+	}
+}
+
+
+
 		
 	
